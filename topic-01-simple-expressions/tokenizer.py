@@ -20,7 +20,7 @@ patterns = [
     ["\\-", "-"],
     ["\\*", "*"],
     ["\\/", "/"],
-    ["(\\d+\\.\\d*)|(\\d*\.\\d+)|(\\d+)", "number"],
+    ["(\\d+\\.\\d*)|(\\d*\\.\\d+)|(\\d+)", "number"],
 ]
 
 for pattern in patterns:
@@ -49,6 +49,12 @@ def tokenize(characters):
                 token["value"] = float(token["value"])
             else:
                 token["value"] = int(token["value"])
+    token = {
+            "tag": None,
+            "value": None,
+            "position": position,
+        }
+    tokens.append(token)
     return tokens
 
 
@@ -62,18 +68,17 @@ def test_simple_tokens():
         assert tokens[0]["tag"] == char
         assert tokens[0]["value"] == char
         assert tokens[0]["position"] == i
-    for characters in ["+","-"]:
+    for characters in ["+", "-"]:
         tokens = tokenize(characters)
         assert tokens[0]["tag"] == characters
         assert tokens[0]["value"] == characters
-    for number in ["123.45","1.", ".1", "123"]:
+    for number in ["123.45", "1.", ".1", "123"]:
         tokens = tokenize(number)
         assert tokens[0]["tag"] == "number"
         assert tokens[0]["value"] == float(number)
 
+
 if __name__ == "__main__":
     test_simple_tokens()
-    # tokens = tokenize("123.45*+1234*/123*()***34235****")
-    # print(tokens)
     print("done.")
 
