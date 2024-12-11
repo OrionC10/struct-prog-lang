@@ -20,6 +20,9 @@ patterns = [
     [r"external", "external"],  # external keyword
     [r"input", "input"],  # function keyword
     [r"exit", "exit"],  # exit keyword
+
+    [r"qSort", "qSort"], # quick sort keyword
+
     [r"and", "&&"],  # alternate for &&
     [r"or", "||"],  # alternate for ||
     [r"not", "!"],  # alternate for !
@@ -236,6 +239,7 @@ def test_keywords():
         "input",
         "print",
         "exit",
+        "qSort",
     ]:
         t = tokenize(keyword)
         assert len(t) == 2
@@ -263,6 +267,29 @@ def test_error():
         assert "illegal character" in error_string
 
 
+def test_qSort():
+    print("testing qSort...")
+    tokens = tokenize("qSort([3,1,4,1,5,9])")
+    assert tokens == [
+        {'tag': 'qSort', 'value': 'qSort', 'position': 0}, 
+        {'tag': '(', 'value': '(', 'position': 5}, 
+        {'tag': '[', 'value': '[', 'position': 6}, 
+        {'tag': 'number', 'value': 3, 'position': 7}, 
+        {'tag': ',', 'value': ',', 'position': 8}, 
+        {'tag': 'number', 'value': 1, 'position': 9}, 
+        {'tag': ',', 'value': ',', 'position': 10}, 
+        {'tag': 'number', 'value': 4, 'position': 11}, 
+        {'tag': ',', 'value': ',', 'position': 12}, 
+        {'tag': 'number', 'value': 1, 'position': 13}, 
+        {'tag': ',', 'value': ',', 'position': 14}, 
+        {'tag': 'number', 'value': 5, 'position': 15}, 
+        {'tag': ',', 'value': ',', 'position': 16}, 
+        {'tag': 'number', 'value': 9, 'position': 17}, 
+        {'tag': ']', 'value': ']', 'position': 18}, 
+        {'tag': ')', 'value': ')', 'position': 19}, 
+        {'tag': None, 'value': None, 'position': 20}]
+
+
 def test_tag_coverage():
     print("testing comprehensive tag coverage...")
     for pattern, tag in patterns:
@@ -281,5 +308,6 @@ if __name__ == "__main__":
     test_keywords()
     test_comments()
     test_error()
+    test_qSort()
     test_tag_coverage()
     print("done.")

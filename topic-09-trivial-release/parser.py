@@ -5,11 +5,12 @@ from pprint import pprint
 
 grammar = """
 
-    simple_expression = identifier | <boolean> | <number> | <string> | list_literal | object_literal | ("-" simple_expression) | ("!" simple_expression) | function_literal | ( "(" expression ")" ) ;
+    simple_expression = identifier | <boolean> | <number> | <string> | list_literal | object_literal | ("-" simple_expression) | ("!" simple_expression) | function_literal | ( "(" expression ")" ) | qSort_expression ;
 
     list_literal = "[" expression { "," expression } "]" ;
     object_literal = "{" [ expression ":" expression { "," expression ":" expression } ] "}" ;
     function_literal = "function" "(" [ identifier { "," identifier } ] ")" statement_list ;
+    qSort_expression = "qSort" "(" expression ")" ;
 
     complex_expression = simple_expression { ("[" expression "]") | ("." identifier) | "(" [ expression { "," expression } ] ")" } ;
 
@@ -42,10 +43,14 @@ grammar = """
 
 def parse_simple_expression(tokens):
     """
-    simple_expression = identifier | <boolean> | <number> | <string> | list_literal | object_literal | ("-" simple_expression) | ("!" simple_expression) | function_literal | ( "(" expression ")" ) ;
+    simple_expression = identifier | <boolean> | <number> | <string> | list_literal | object_literal | ("-" simple_expression) | ("!" simple_expression) | function_literal | ( "(" expression ")" ) | qSort_expression ;
     """
 
     token = tokens[0]
+
+    # if token["tag"] == "identifier" and token["value"] == "qSort": 
+    if token["tag"] == "qSort": 
+        return parse_qSort_expression(tokens)
 
     if token["tag"] in {"identifier", "boolean", "number", "string"}:
         return {"tag": token["tag"], "value": token["value"]}, tokens[1:]
@@ -79,7 +84,7 @@ def parse_simple_expression(tokens):
 
 def test_parse_simple_expression():
     """
-    simple_expression = identifier | <boolean> | <number> | <string> | list_literal | object_literal | ("-" simple_expression) | ("!" simple_expression) | function_literal | ( "(" expression ")" ) ;
+    simple_expression = identifier | <boolean> | <number> | <string> | list_literal | object_literal | ("-" simple_expression) | ("!" simple_expression) | function_literal | ( "(" expression ")" ) | qSort_expression ;
     """
     print("testing parse_simple_expression...")
 
@@ -383,6 +388,46 @@ def test_parse_function_literal():
             },
         ],
     }
+
+# parses expression of qSort
+def parse_qSort_expression(tokens):
+    """
+    qSort_expression = "qSort" "(" expression ")" ;
+    """
+    assert tokens[0]["tag"] == "qSort" and tokens[0]["value"] == "qSort", f"Expected 'qSort' at position {tokens[0]['position']}"
+    tokens = tokens[1:]  # consumes 'qSort'
+    assert tokens[0]["tag"] == "(", f"Expected '(' at position {tokens[0]['position']}"
+    tokens = tokens[1:]  # consumes '('
+    value, tokens = parse_expression(tokens)
+    assert tokens[0]["tag"] == ")", f"Expected ')' at position {tokens[0]['position']}"
+    tokens = tokens[1:]  # consumes ')'
+    return {"tag": "qSort", "value": value}, tokens
+
+# tests my qSort parsing
+def test_parse_qSort_expression():
+    """
+    qSort_expression = "qSort" "(" expression ")" ;
+    """
+    print("testing parse_qsort_expression...")
+    ast, tokens = parse_qSort_expression(tokenize("qSort([3,1,4,1,5,9])"))
+    # pprint(parse_qSort_expression(tokenize("qSort([3,1,4,1,5,9])")))
+    
+    assert ast == {
+        "tag": "qSort",
+        "value": {
+            "tag": "list",
+            "items": [
+                {"tag": "number", "value": 3},
+                {"tag": "number", "value": 1},
+                {"tag": "number", "value": 4},
+                {"tag": "number", "value": 1},
+                {"tag": "number", "value": 5},
+                {"tag": "number", "value": 9}
+            ]
+        }
+    }, f"Expected qSort AST, got {ast}"
+
+
 
 def parse_complex_expression(tokens):
     """
@@ -1194,6 +1239,7 @@ if __name__ == "__main__":
         test_parse_function_statement,
         test_parse_statement,
         test_parse_program,
+        test_parse_qSort_expression,
     ]
 
     test_grammar = grammar

@@ -93,11 +93,20 @@ def evaluate(ast, environment):
     if ast["tag"] == "print":
         if ast["value"]:
             value, _ = evaluate(ast["value"], environment)
-            print(value)
-            return str(value) + "\n", False
+            # print(value)
+            # return str(value) + "\n", False # changed to stop print from printing twice in runner
+            return str(value), False
         else:
             print()
         return "\n", False
+    
+    # adding quick sort to the evauator to sort a list
+    if ast["tag"] == "qSort":
+        value, _ = evaluate(ast["value"], environment)
+        assert type(value) == list, f"qSort expects a list, got {type(value)}"
+        sorted_list = quick_sort(value)
+        return sorted_list, False
+
 
     if ast["tag"] == "if":
         condition, _ = evaluate(ast["condition"], environment)
@@ -237,6 +246,17 @@ def equals(code, environment, expected_result, expected_environment=None):
         {[expected_environment]}
         -- got --
         {[environment]}."""
+
+# this is the quick sort algorithm that I use for the quick sort keyword
+def quick_sort(arr):
+    if len(arr) <= 1:
+        return arr
+    else:
+        pivot = arr[len(arr) // 2]
+        left = [x for x in arr if x < pivot]
+        middle = [x for x in arr if x == pivot]
+        right = [x for x in arr if x > pivot]
+        return quick_sort(left) + middle + quick_sort(right)
 
 
 def test_evaluate_single_value():
@@ -536,3 +556,4 @@ if __name__ == "__main__":
     test_evaluate_list_literal()
     test_evaluate_object_literal()
     print("done.")
+    
